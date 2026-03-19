@@ -155,6 +155,12 @@ class LiveInterviewService:
         self._whisper_model = None
         self._pending_export_thread: threading.Thread | None = None
 
+    def get_current_snapshot(self) -> dict[str, Any] | None:
+        if self.current_session is None:
+            return None
+        with self._state_lock:
+            return self.current_session.to_dict()
+
     def missing_runtime_dependencies(self) -> list[RuntimeCapability]:
         return [capability for capability in self.capabilities if not capability.available]
 
@@ -164,6 +170,8 @@ class LiveInterviewService:
         return required.issubset(available)
 
     def start_session(self, config: LiveSessionConfig) -> LiveSessionSnapshot:
+        if self.current_session is not None and self.current_session.status == "recording":
+            return self.current_session
         if self.current_session is not None and self.current_session.status == "paused":
             self.current_session.status = "recording"
             self._capture_paused.clear()
@@ -175,6 +183,13 @@ class LiveInterviewService:
         if not self.can_record():
             missing = ", ".join(capability.name for capability in self.missing_runtime_dependencies())
             blocked_reason = f"Live recording backend unavailable in this runtime. Missing: {missing}."
+        self._flush_audio_queue()
+        while not self._segment_queue.empty():
+            try:
+                self._segment_queue.get_nowait()
+            except queue.Empty:
+                break
+        self._speaker_profiles = []
         self.current_config = config
         snapshot = self.store.create_session(config, blocked_reason=blocked_reason)
         self.current_session = snapshot
