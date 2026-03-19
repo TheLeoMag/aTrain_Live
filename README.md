@@ -74,6 +74,12 @@ Transcription Time (incl. speaker detection) for 00:22:00 File:
 | GPU: RTX 2070 Max-Q    | 00:05:59    | 00:??:??          | 00:04:37       |
 
 
+## Live Interview Mode Prototype
+
+The GUI now includes a second top-level workflow named **Live Interview Mode** beside the existing file transcription flow. The prototype introduces a dedicated setup panel for audio inputs, model selection, speaker mode, and language behavior together with a chat-style conversation view that distinguishes provisional and committed turns. The existing file transcription/export pipeline remains unchanged, while the live workflow is intentionally framed around a future five-worker architecture: recorder, VAD/segmenter, ASR, provisional speaker assignment, and finalizer/export.
+
+This first step focuses on the user-facing workflow needed for local recording and incremental transcript review without changing the standard aTrain export expectations for MAXQDA, ATLAS.ti, and nVivo workflows.
+
 ## Roadmap and Upcoming Features
 
 Planned in the near future.
