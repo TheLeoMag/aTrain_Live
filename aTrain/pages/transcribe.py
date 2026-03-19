@@ -41,7 +41,7 @@ async def page(client: Client):
                 start_btn.props("no-caps unelevated")
                 advanced_settings(open=False)
 
-        live_interview_mode(live_controller)
+        live_interview_mode()
 
     file.on_upload(start_transcription)
     settings_btn.on_click(lambda: advanced_settings(open=True))
